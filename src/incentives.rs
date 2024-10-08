@@ -566,28 +566,33 @@ mod incentives {
                 .expect("Stakable not found in staking ID.")
                 .locked_until
             {
-                let stakable = self.stakes.get(&address).unwrap();
-                let seconds_to_unlock = locked_until.seconds_since_unix_epoch
-                    - Clock::current_time_rounded_to_seconds().seconds_since_unix_epoch;
-                let seconds_to_unlock_dec = Decimal::from(seconds_to_unlock);
-                let full_days_to_unlock = (seconds_to_unlock_dec / dec!(86400))
-                    .checked_floor()
-                    .unwrap();
-                let whole_days_to_unlock: i64 =
-                    i64::try_from(full_days_to_unlock.0 / Decimal::ONE.0).unwrap();
-                lock_reward_bucket = Some(
-                    self.reward_vault
-                        .take(
-                            (stakable
-                                .lock
-                                .payment
-                                .checked_powi(whole_days_to_unlock)
-                                .unwrap()
-                                * stake_amount)
-                                - stake_amount,
-                        )
-                        .into(),
-                );
+                if locked_until.compare(
+                    Clock::current_time_rounded_to_seconds(),
+                    TimeComparisonOperator::Gt,
+                ) {
+                    let stakable = self.stakes.get(&address).unwrap();
+                    let seconds_to_unlock = locked_until.seconds_since_unix_epoch
+                        - Clock::current_time_rounded_to_seconds().seconds_since_unix_epoch;
+                    let seconds_to_unlock_dec = Decimal::from(seconds_to_unlock);
+                    let full_days_to_unlock = (seconds_to_unlock_dec / dec!(86400))
+                        .checked_floor()
+                        .unwrap();
+                    let whole_days_to_unlock: i64 =
+                        i64::try_from(full_days_to_unlock.0 / Decimal::ONE.0).unwrap();
+                    lock_reward_bucket = Some(
+                        self.reward_vault
+                            .take(
+                                (stakable
+                                    .lock
+                                    .payment
+                                    .checked_powi(whole_days_to_unlock)
+                                    .unwrap()
+                                    * stake_amount)
+                                    - stake_amount,
+                            )
+                            .into(),
+                    );
+                }
             }
 
             self.id_manager
