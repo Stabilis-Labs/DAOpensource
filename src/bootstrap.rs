@@ -275,13 +275,19 @@ mod bootstrap {
             reserves = self.vault_reserves();
             let resource1_reserve = *reserves.get(&self.resource1).unwrap();
             let resource2_reserve = *reserves.get(&self.resource2).unwrap();
+            let progress = self.get_progress();
 
-            self.ledger.insert(
-                self.ledger_counter,
-                vec![(self.get_progress(), (resource1_reserve, resource2_reserve))],
-            );
-            if self.ledger.get(&self.ledger_counter).unwrap().len() > 99 {
-                self.ledger_counter += 1;
+            if self.ledger.get(&self.ledger_counter).is_some() {
+                let mut ledger_vector = self.ledger.get_mut(&self.ledger_counter).unwrap();
+                if ledger_vector.len() > 99 {
+                    self.ledger_counter += 1;
+                }
+                ledger_vector.push((progress, (resource1_reserve, resource2_reserve)));
+            } else {
+                self.ledger.insert(
+                    self.ledger_counter,
+                    vec![(progress, (resource1_reserve, resource2_reserve))],
+                );
             }
 
             if self.get_progress() >= dec!(1) {
