@@ -989,7 +989,11 @@ mod staking {
             id_data.pool_amount_staked += stake_amount;
 
             if let Some(locked_until) = id_data.locked_until {
-                if with_lock_rewards {
+                let lock_is_active = locked_until.compare(
+                    Clock::current_time_rounded_to_seconds(),
+                    TimeComparisonOperator::Gt,
+                );
+                if with_lock_rewards && lock_is_active {
                     let seconds_to_unlock = locked_until.seconds_since_unix_epoch
                         - Clock::current_time_rounded_to_seconds().seconds_since_unix_epoch;
                     let seconds_to_unlock_dec = Decimal::from(seconds_to_unlock);
