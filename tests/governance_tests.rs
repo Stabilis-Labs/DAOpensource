@@ -479,6 +479,37 @@ pub fn test_proposal_with_multiple_steps_succeed_in_one_call() -> Result<(), Run
 }
 
 #[test]
+pub fn test_hurried_proposal() -> Result<(), RuntimeError> {
+    let mut helper = Helper::new().unwrap();
+    helper.env.disable_auth_module();
+
+    // Stake tokens for a single voter
+    let bucket_1 = helper.ilis.take(dec!(10000), &mut helper.env)?;
+    let stake_id = helper.stake_without_id(bucket_1)?.0.unwrap();
+
+    // Create a proposal with multiple steps
+    let (_bucket_return_payment, proposal_bucket) = helper.create_basic_proposal(dec!(10000))?;
+
+    // Submit the proposal and vote
+    let proposal_bucket_return_2 = helper.submit_proposal(proposal_bucket)?;
+    let _ = helper.vote_on_proposal(true, stake_id, 0)?;
+    let _ = helper.hurry_proposal(0, 1)?;
+
+    // Advance time by 1 day (end of voting period due to hurry)
+    let new_time_1 = helper.env.get_current_time().add_days(1).unwrap();
+    helper.env.set_current_time(new_time_1);
+
+    // Finish voting and execute all steps in one call
+    let _ = helper.finish_voting(0)?;
+    let _ = helper.execute_proposal_step(0, 1)?;
+
+    // Successfully retrieve fee
+    let _ = helper.retrieve_fee(proposal_bucket_return_2)?;
+
+    Ok(())
+}
+
+#[test]
 pub fn test_proposal_with_multiple_steps_succeed_in_one_call_overshoot() -> Result<(), RuntimeError>
 {
     let mut helper = Helper::new().unwrap();

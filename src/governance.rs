@@ -98,6 +98,7 @@ mod governance {
             send_tokens => restrict_to: [OWNER];
             set_parameters => restrict_to: [OWNER];
             set_staking_component => restrict_to: [OWNER];
+            hurry_proposal => restrict_to: [OWNER];
         }
     }
 
@@ -809,6 +810,23 @@ mod governance {
             );
 
             self.proposal_fee_vault.take(receipt.fee_paid)
+        }
+
+        pub fn hurry_proposal(&mut self, proposal_id: u64, new_duration: i64) {
+            let new_deadline = Clock::current_time_rounded_to_seconds()
+                .add_minutes(new_duration * 24 * 60)
+                .unwrap();
+            let mut proposal = self.proposals.get_mut(&proposal_id).unwrap();
+            assert!(
+                proposal.status == ProposalStatus::Ongoing,
+                "Proposal not ongoing!"
+            );
+            assert!(
+                new_deadline.compare(proposal.deadline, TimeComparisonOperator::Lte),
+                "New deadline is after old deadline!"
+            );
+            assert!(new_duration > 0, "New duration is not positive!");
+            proposal.deadline = new_deadline;
         }
 
         ///Sets the new staking component and voting id address

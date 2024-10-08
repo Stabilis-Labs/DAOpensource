@@ -750,6 +750,18 @@ impl Helper {
         Ok(fee)
     }
 
+    pub fn hurry_proposal(
+        &mut self,
+        proposal_id: u64,
+        new_duration: i64,
+    ) -> Result<(), RuntimeError> {
+        let _ = self
+            .governance
+            .hurry_proposal(proposal_id, new_duration, &mut self.env)?;
+
+        Ok(())
+    }
+
     /////////////////////////////////////////////////
     //////////////////// TEST HELPERS ///////////////
     /////////////////////////////////////////////////
