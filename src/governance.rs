@@ -79,6 +79,7 @@ pub struct GovernanceParameters {
     pub proposal_duration: i64,
     pub quorum: Decimal,
     pub approval_threshold: Decimal,
+    pub maximum_proposal_submit_delay: i64,
 }
 
 #[blueprint]
@@ -207,6 +208,7 @@ mod governance {
                 proposal_duration: 7,
                 quorum: dec!(10000),
                 approval_threshold: dec!("0.5"),
+                maximum_proposal_submit_delay: 7,
             };
 
             let vaults: KeyValueStore<ResourceAddress, Vault> =
@@ -347,7 +349,7 @@ mod governance {
                 votes_against: dec!(0),
                 votes: KeyValueStore::new(),
                 deadline: Clock::current_time_rounded_to_seconds()
-                    .add_minutes(self.parameters.proposal_duration * 24 * 60)
+                    .add_minutes(self.parameters.maximum_proposal_submit_delay * 24 * 60)
                     .unwrap(),
                 next_index: 0,
                 has_failed_in_last_day: None,
@@ -453,18 +455,39 @@ mod governance {
             );
 
             let proposal_id: u64 = receipt.proposal_id;
-            let mut proposal = self.proposals.get_mut(&proposal_id).unwrap();
+            let proposal_deadline = self.proposals.get(&proposal_id).unwrap().deadline;
+            let too_late: bool = Clock::current_time_rounded_to_seconds()
+                .compare(proposal_deadline, TimeComparisonOperator::Gt);
 
-            proposal.status = ProposalStatus::Ongoing;
-            proposal.deadline = Clock::current_time_rounded_to_seconds()
-                .add_minutes(self.parameters.proposal_duration * 24 * 60)
-                .unwrap();
+            if too_late {
+                let fee_paid: Decimal = self
+                    .proposal_receipt_manager
+                    .get_non_fungible_data::<ProposalReceipt>(&NonFungibleLocalId::integer(
+                        proposal_id,
+                    ))
+                    .fee_paid;
+                let fee_tokens: Bucket = self.proposal_fee_vault.take(fee_paid);
+                self.put_tokens(fee_tokens);
+                self.proposals.get_mut(&proposal_id).unwrap().status = ProposalStatus::Rejected;
+                self.proposal_receipt_manager.update_non_fungible_data(
+                    &NonFungibleLocalId::integer(proposal_id),
+                    "status",
+                    ProposalStatus::Rejected,
+                );
+            } else {
+                let mut proposal = self.proposals.get_mut(&proposal_id).unwrap();
 
-            self.proposal_receipt_manager.update_non_fungible_data(
-                &NonFungibleLocalId::integer(proposal_id),
-                "status",
-                proposal.status,
-            );
+                proposal.status = ProposalStatus::Ongoing;
+                proposal.deadline = Clock::current_time_rounded_to_seconds()
+                    .add_minutes(self.parameters.proposal_duration * 24 * 60)
+                    .unwrap();
+
+                self.proposal_receipt_manager.update_non_fungible_data(
+                    &NonFungibleLocalId::integer(proposal_id),
+                    "status",
+                    proposal.status,
+                );
+            }
         }
 
         /// Votes on a proposal.
@@ -835,11 +858,24 @@ mod governance {
             proposal_duration: i64,
             quorum: Decimal,
             approval_threshold: Decimal,
+            maximum_proposal_submit_delay: i64,
         ) {
+            assert!(
+                maximum_proposal_submit_delay > 0,
+                "Maximum proposal submit delay must be positive!"
+            );
+            assert!(proposal_duration > 0, "Proposal duration must be positive!");
+            assert!(quorum > dec!(0), "Quorum must be positive!");
+            assert!(
+                approval_threshold > dec!(0) && approval_threshold <= dec!(1),
+                "Approval threshold must be between 0 and 1!"
+            );
+            assert!(fee > dec!(0), "Fee must be positive!");
             self.parameters.fee = fee;
             self.parameters.proposal_duration = proposal_duration;
             self.parameters.quorum = quorum;
             self.parameters.approval_threshold = approval_threshold;
+            self.parameters.maximum_proposal_submit_delay = maximum_proposal_submit_delay;
         }
     }
 }
