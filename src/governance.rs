@@ -261,6 +261,7 @@ mod governance {
             address: ResourceAddress,
             tokens: ResourceSpecifier,
             receiver_address: ComponentAddress,
+            put_method: String,
         ) {
             let payment: Bucket = match tokens {
                 ResourceSpecifier::Fungible(amount) => self
@@ -282,7 +283,7 @@ mod governance {
                     .into(),
             };
             let receiver: Global<AnyComponent> = Global::from(receiver_address);
-            receiver.call_raw::<()>("put_tokens", scrypto_args!(payment));
+            receiver.call_raw::<()>(&put_method, scrypto_args!(payment));
         }
 
         /// Creates a new proposal.
