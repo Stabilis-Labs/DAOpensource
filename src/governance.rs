@@ -501,7 +501,7 @@ mod governance {
             assert!(
                 proposal.status == ProposalStatus::Ongoing
                     || proposal.status == ProposalStatus::VetoMode,
-                "Proposal not ongoing or in veto mode!"
+                "Proposal not ongoing!"
             );
 
             if proposal.status == ProposalStatus::VetoMode
