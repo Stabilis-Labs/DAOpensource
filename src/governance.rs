@@ -538,29 +538,18 @@ mod governance {
                 .check_with_message(self.voting_id_address, "Invalid staking ID supplied!");
             let id: NonFungibleLocalId = id_proof.as_non_fungible().non_fungible_local_id();
 
-            assert!(
-                proposal.votes.get(&id).is_none(),
-                "Already voted on this proposal!"
-            );
+            if let Some(vote) = proposal.votes.get(&id) {
+                if *vote >= dec!(0) {
+                    panic!("You have already voted for this proposal!");
+                } else {
+                    panic!("You have already voted against this proposal!");
+                }
+            }
 
             assert!(
                 !Clock::current_time_is_at_or_after(proposal.deadline, TimePrecision::Second),
                 "Voting period has passed!"
             );
-
-            if let Some(vote) = proposal.votes.get(&id) {
-                if for_against {
-                    assert!(
-                        *vote >= dec!(0),
-                        "Already voted on this proposal, can only update vote, not change it!"
-                    );
-                } else {
-                    assert!(
-                        *vote <= dec!(0),
-                        "Already voted on this proposal, can only update vote, not change it!"
-                    );
-                }
-            }
 
             let vote_power: Decimal = self
                 .vaults
