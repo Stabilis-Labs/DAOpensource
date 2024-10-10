@@ -154,7 +154,6 @@ mod dao {
             staking_allocation: Decimal,
             incentives_allocation: Decimal,
             mut controller_badge: Bucket,
-            rewarded_calls: Option<(ComponentAddress, Vec<String>)>,
             dao_name: String,
             dao_token_symbol: String,
             bootstrap_resource1: Bucket,
@@ -168,6 +167,7 @@ mod dao {
             id_icon_url: Url,
             transfer_receipt_icon_url: Url,
             unstake_receipt_icon_url: Url,
+            dao_logo_url: Url,
         ) -> (
             Global<Dao>,
             Global<Staking>,
@@ -309,15 +309,10 @@ mod dao {
                     info_url.clone(),
                 );
 
-            let mut rewarded_calls_map: HashMap<ComponentAddress, Vec<String>> = HashMap::new();
-
-            if let Some((component, method)) = rewarded_calls {
-                rewarded_calls_map.insert(component, method);
-            }
-
             dapp_def_account.set_metadata("account_type", String::from("dapp definition"));
             dapp_def_account.set_metadata("name", dao_name.to_string());
             dapp_def_account.set_metadata("info_url", info_url.clone());
+            dapp_def_account.set_metadata("icon_url", dao_logo_url);
             dapp_def_account.set_metadata("claimed_websites", vec![info_url.clone()]);
             dapp_def_account.set_metadata(
                 "claimed_entities",
@@ -344,7 +339,7 @@ mod dao {
                 text_announcement_counter: 0,
                 last_update: Clock::current_time_rounded_to_seconds(),
                 daily_update_reward,
-                rewarded_calls: rewarded_calls_map,
+                rewarded_calls: HashMap::new(),
                 controller_badge_address,
                 employees: DaoKeyValueStore::new_with_registered_type(),
                 jobs: DaoKeyValueStore::new_with_registered_type(),
@@ -566,12 +561,18 @@ mod dao {
                     self.staking.lock_stake(staking_proof, lock_duration, false);
                 }
                 if vote_duration > 0 {
-                    self.staking.vote(
-                        Clock::current_time_rounded_to_seconds()
-                            .add_days(vote_duration)
-                            .unwrap(),
-                        staking_id_id.clone(),
-                    );
+                    self.vaults
+                        .get_mut(&self.controller_badge_address)
+                        .unwrap()
+                        .as_fungible()
+                        .authorize_with_amount(dec!(1), || {
+                            self.staking.vote(
+                                Clock::current_time_rounded_to_seconds()
+                                    .add_days(vote_duration)
+                                    .unwrap(),
+                                staking_id_id.clone(),
+                            )
+                        });
                 }
                 let mut ids: IndexSet<NonFungibleLocalId> = IndexSet::new();
                 ids.insert(staking_id_id);
@@ -647,13 +648,19 @@ mod dao {
                     self.put_tokens(locking_reward);
                 }
                 if vote_duration > 0 {
-                    self.incentives.vote(
-                        address,
-                        Clock::current_time_rounded_to_seconds()
-                            .add_days(vote_duration)
-                            .unwrap(),
-                        staking_id_id.clone(),
-                    );
+                    self.vaults
+                        .get_mut(&self.controller_badge_address)
+                        .unwrap()
+                        .as_fungible()
+                        .authorize_with_amount(dec!(1), || {
+                            self.incentives.vote(
+                                address,
+                                Clock::current_time_rounded_to_seconds()
+                                    .add_days(vote_duration)
+                                    .unwrap(),
+                                staking_id_id.clone(),
+                            )
+                        });
                 }
                 let mut ids: IndexSet<NonFungibleLocalId> = IndexSet::new();
                 ids.insert(staking_id_id);

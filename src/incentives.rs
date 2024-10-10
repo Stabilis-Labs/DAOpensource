@@ -214,7 +214,7 @@ mod incentives {
             )
             .metadata(metadata!(
                 init {
-                    "name" => format!("{} Stake Transfer Receipt", name), updatable;
+                    "name" => format!("{} Incentive Stake Transfer Receipt", name), updatable;
                     "symbol" => format!("staketr{}", symbol), updatable;
                     "description" => format!("An stake transfer receipt used in the {} ecosystem.", name), updatable;
                     "icon_url" => transfer_receipt_icon_url, updatable;
@@ -238,7 +238,7 @@ mod incentives {
                 ))
                 .metadata(metadata!(
                     init {
-                        "name" => format!("{} Unstake Receipt", name), updatable;
+                        "name" => format!("{} Incentive Unstake Receipt", name), updatable;
                         "symbol" => format!("unstake{}", symbol), updatable;
                         "description" => format!("An unstake receipt used in the {} ecosystem.", name), updatable;
                         "icon_url" => unstake_receipt_icon_url, updatable;

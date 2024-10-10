@@ -255,7 +255,7 @@ mod staking {
                 ))
                 .metadata(metadata!(
                     init {
-                        "name" => format!("{} Membership IDUnstake Receipt", name), updatable;
+                        "name" => format!("{} Membership ID Unstake Receipt", name), updatable;
                         "symbol" => format!("unst{}", symbol), updatable;
                         "description" => format!("A receipt for removing stake from {} Membership ID.", name), updatable;
                         "icon_url" => unstake_receipt_icon_url, updatable;
