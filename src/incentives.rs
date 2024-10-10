@@ -184,7 +184,7 @@ mod incentives {
                     "name" => format!("{} Incentives ID", name), updatable;
                     "symbol" => format!("st{}", symbol), updatable;
                     "description" => format!("An ID recording your incentivized stakes in the {} ecosystem.", name), updatable;
-                    "icon_url" => id_icon_url, updatable;
+                    "icon_url" => id_icon_url.clone(), updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -285,6 +285,8 @@ mod incentives {
                     "name" => format!("{} Incentives", name), updatable;
                     "description" => format!("Incentives for the {} ecosystem.", name), updatable;
                     "info_url" => info_url, updatable;
+                    "icon_url" => id_icon_url, updatable;
+                    "stake_receipt" => id_address, updatable;
                     "dapp_definition" => dapp_def_address, updatable;
                 }
             })

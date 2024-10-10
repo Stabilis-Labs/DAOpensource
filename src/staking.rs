@@ -201,7 +201,7 @@ mod staking {
                     "name" => format!("{} Membership ID", name), updatable;
                     "symbol" => format!("id{}", symbol), updatable;
                     "description" => format!("A Membership ID recording your stake in the {}.", name), updatable;
-                    "icon_url" => id_icon_url, updatable;
+                    "icon_url" => id_icon_url.clone(), updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -312,6 +312,8 @@ mod staking {
                     "name" => format!("Staking component {}", name), updatable;
                     "description" => format!("A staking component for {}", name), updatable;
                     "info_url" => info_url, updatable;
+                    "icon_url" => id_icon_url, updatable;
+                    "stake_receipt" => id_address, updatable;
                     "dapp_definition" => dapp_def_address, updatable;
                 }
             })
