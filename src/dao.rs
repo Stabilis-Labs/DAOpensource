@@ -64,6 +64,7 @@ mod dao {
             remove_rewarded_calls => restrict_to: [OWNER];
             set_staking_component => restrict_to: [OWNER];
             set_incentives_component => restrict_to: [OWNER];
+            add_claimed_website => restrict_to: [OWNER];
             send_salary_to_employee => PUBLIC;
             rewarded_update => PUBLIC;
             use_raised_liquidity => PUBLIC;
@@ -111,6 +112,8 @@ mod dao {
         pub governance: Global<Governance>,
         /// Whether to send LBP liq to dex
         pub send_raised_liquidity_to_dex: bool,
+        /// The dapp definition of the DAO.
+        pub dapp_def_account: Global<Account>,
     }
 
     impl Dao {
@@ -154,13 +157,17 @@ mod dao {
             rewarded_calls: Option<(ComponentAddress, Vec<String>)>,
             dao_name: String,
             dao_token_symbol: String,
-            dao_staking_id_name: String,
-            proposal_receipt_icon_url: Url,
             bootstrap_resource1: Bucket,
             oci_dapp_definition: ComponentAddress,
             send_raised_liquidity_to_dex: bool,
             bootstrap_length: i64,
             daily_update_reward: Decimal,
+            incentive_period_interval: i64,
+            info_url: Url,
+            proposal_receipt_icon_url: Url,
+            id_icon_url: Url,
+            transfer_receipt_icon_url: Url,
+            unstake_receipt_icon_url: Url,
         ) -> (
             Global<Dao>,
             Global<Staking>,
@@ -179,6 +186,10 @@ mod dao {
 
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(Dao::blueprint_id());
+
+            let dapp_def_account =
+                Blueprint::<Account>::create_advanced(OwnerRole::Updatable(rule!(allow_all)), None); // will reset owner role after dapp def metadata has been set
+            let dapp_def_address = GlobalAddress::from(dapp_def_account.address());
 
             let payment_locker = Blueprint::<AccountLocker>::instantiate(
                 OwnerRole::Fixed(rule!(require_amount(
@@ -203,6 +214,10 @@ mod dao {
                 ),
                 None,
             );
+
+            controller_badge.authorize_with_all(|| {
+                payment_locker.set_metadata("dapp_definition", dapp_def_address);
+            });
 
             let mother_token_address: ResourceAddress = mother_token_bucket.resource_address();
 
@@ -230,6 +245,8 @@ mod dao {
                 bootstrap_length,
                 oci_dapp_definition,
                 true,
+                dapp_def_address,
+                info_url.clone(),
             );
 
             let (staking, voting_id_address, pool_token_address): (
@@ -241,16 +258,25 @@ mod dao {
                 mother_token_bucket.take(staking_allocation_amount),
                 dao_name.clone(),
                 dao_token_symbol.clone(),
-                dao_staking_id_name.clone(),
+                dapp_def_address,
+                info_url.clone(),
+                id_icon_url.clone(),
+                transfer_receipt_icon_url.clone(),
+                unstake_receipt_icon_url.clone(),
             );
 
             let (incentives, incentive_id_address): (Global<Incentives>, ResourceAddress) =
                 Incentives::new(
                     controller_badge.resource_address(),
                     mother_token_bucket.take(incentives_allocation_amount),
-                    7, //period interval
+                    incentive_period_interval, //period interval
                     dao_name.clone(),
                     dao_token_symbol.clone(),
+                    dapp_def_address,
+                    info_url.clone(),
+                    id_icon_url.clone(),
+                    transfer_receipt_icon_url.clone(),
+                    unstake_receipt_icon_url.clone(),
                 );
 
             let vaults: KeyValueStore<ResourceAddress, Vault> =
@@ -272,13 +298,15 @@ mod dao {
             let (governance, reentrancy): (Global<Governance>, Global<ReentrancyProxy>) =
                 Governance::instantiate_governance(
                     controller_badge,
-                    dao_name,
+                    dao_name.clone(),
                     dao_token_symbol,
                     proposal_receipt_icon_url,
                     staking,
                     mother_token_address,
                     pool_token_address,
                     voting_id_address,
+                    dapp_def_address,
+                    info_url.clone(),
                 );
 
             let mut rewarded_calls_map: HashMap<ComponentAddress, Vec<String>> = HashMap::new();
@@ -286,6 +314,24 @@ mod dao {
             if let Some((component, method)) = rewarded_calls {
                 rewarded_calls_map.insert(component, method);
             }
+
+            dapp_def_account.set_metadata("account_type", String::from("dapp definition"));
+            dapp_def_account.set_metadata("name", dao_name.to_string());
+            dapp_def_account.set_metadata("info_url", info_url.clone());
+            dapp_def_account.set_metadata("claimed_websites", vec![info_url.clone()]);
+            dapp_def_account.set_metadata(
+                "claimed_entities",
+                vec![
+                    GlobalAddress::from(component_address.clone()),
+                    GlobalAddress::from(governance.address()),
+                    GlobalAddress::from(staking.address()),
+                    GlobalAddress::from(incentives.address()),
+                    GlobalAddress::from(payment_locker.address()),
+                    GlobalAddress::from(bootstrap.address()),
+                    GlobalAddress::from(reentrancy.address()),
+                ],
+            );
+            dapp_def_account.set_owner_role(rule!(require(controller_badge_address)));
 
             let dao = Self {
                 payment_locker,
@@ -305,10 +351,18 @@ mod dao {
                 job_counter: 0,
                 governance,
                 send_raised_liquidity_to_dex,
+                dapp_def_account,
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::Fixed(rule!(require(controller_badge_address))))
             .with_address(address_reservation)
+            .metadata(metadata! {
+                init {
+                    "name" => dao_name.to_string(), updatable;
+                    "info_url" => info_url, updatable;
+                    "dapp_definition" => dapp_def_address, updatable;
+                }
+            })
             .globalize();
 
             (
@@ -965,6 +1019,31 @@ mod dao {
         /// Get the amount of tokens in possession of the DAO
         pub fn get_token_amount(&self, address: ResourceAddress) -> Decimal {
             self.vaults.get(&address).unwrap().as_fungible().amount()
+        }
+
+        /// Adds claimed website to the dapp definition
+        pub fn add_claimed_website(&mut self, website: Url) {
+            let badge_vault = self
+                .vaults
+                .get_mut(&self.controller_badge_address)
+                .unwrap()
+                .as_fungible();
+            match self.dapp_def_account.get_metadata("claimed_websites") {
+                Ok(Some(claimed_websites)) => {
+                    let mut claimed_websites: Vec<Url> = claimed_websites;
+                    claimed_websites.push(website);
+                    badge_vault.authorize_with_amount(dec!("1"), || {
+                        self.dapp_def_account
+                            .set_metadata("claimed_websites", claimed_websites);
+                    });
+                }
+                Ok(None) | Err(_) => {
+                    badge_vault.authorize_with_amount(dec!("1"), || {
+                        self.dapp_def_account
+                            .set_metadata("claimed_websites", vec![website]);
+                    });
+                }
+            }
         }
     }
 }

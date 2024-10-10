@@ -118,6 +118,8 @@ mod bootstrap {
             duration: i64,
             oci_dapp_definition: ComponentAddress,
             refund_initial: bool,
+            dapp_def_address: GlobalAddress,
+            info_url: Url,
         ) -> (Global<LinearBootstrapPool>, Option<Bucket>, Bucket) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(LinearBootstrapPool::blueprint_id());
@@ -205,6 +207,13 @@ mod bootstrap {
                 bootstrap_badge.resource_address()
             ))))
             .with_address(address_reservation)
+            .metadata(metadata! {
+                init {
+                    "name" => "Linear Bootstrap Pool", updatable;
+                    "info_url" => info_url, updatable;
+                    "dapp_definition" => dapp_def_address, updatable;
+                }
+            })
             .globalize();
 
             (component, little_idiot_bucket, bootstrap_badge)

@@ -39,7 +39,11 @@ mod reentrancy {
         ///
         /// # Logic
         /// - Instantiates a new ReentrancyProxy component with the given badge
-        pub fn new(badge: Bucket) -> Global<ReentrancyProxy> {
+        pub fn new(
+            badge: Bucket,
+            dapp_def_address: GlobalAddress,
+            info_url: Url,
+        ) -> Global<ReentrancyProxy> {
             let badge_address = badge.resource_address();
             Self {
                 reentrancies: ReentrancyProxyKeyValueStore::new_with_registered_type(),
@@ -47,6 +51,14 @@ mod reentrancy {
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::Fixed(rule!(require(badge_address))))
+            .metadata(metadata! {
+                init {
+                    "name" => "Reentrancy Proxy", updatable;
+                    "description" => "A proxy for reentrant proposal steps", updatable;
+                    "info_url" => info_url, updatable;
+                    "dapp_definition" => dapp_def_address, updatable;
+                }
+            })
             .globalize()
         }
 

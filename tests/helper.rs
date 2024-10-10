@@ -112,13 +112,17 @@ impl Helper {
             None,
             "ILIS DAO".to_string(),
             "ILIS".to_string(),
-            "Membership ID".to_string(),
-            UncheckedUrl::of("https://blabla.com").into(),
             xrd.take(dec!(500), &mut env)?,
             dapp_definition,
             true,
             7,
             dec!(5000),
+            7,
+            UncheckedUrl::of("https://blabla.com").into(),
+            UncheckedUrl::of("https://blabla.com").into(),
+            UncheckedUrl::of("https://blabla.com").into(),
+            UncheckedUrl::of("https://blabla.com").into(),
+            UncheckedUrl::of("https://blabla.com").into(),
             package_address,
             &mut env,
         )?;
@@ -171,9 +175,13 @@ impl Helper {
         specifier: ResourceSpecifier,
         recipient: ComponentAddress,
     ) -> Result<(), RuntimeError> {
-        let _ = self
-            .dao
-            .send_tokens(address, specifier, recipient, &mut self.env)?;
+        let _ = self.dao.send_tokens(
+            address,
+            specifier,
+            recipient,
+            "put_tokens".to_string(),
+            &mut self.env,
+        )?;
 
         Ok(())
     }

@@ -165,7 +165,11 @@ mod staking {
             rewards: Bucket,
             name: String,
             symbol: String,
-            staking_id_name: String,
+            dapp_def_address: GlobalAddress,
+            info_url: Url,
+            id_icon_url: Url,
+            transfer_receipt_icon_url: Url,
+            unstake_receipt_icon_url: Url,
         ) -> (Global<Staking>, ResourceAddress, ResourceAddress) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(Staking::blueprint_id());
@@ -194,9 +198,10 @@ mod staking {
             ))
             .metadata(metadata!(
                 init {
-                    "name" => format!("{} {}", name, staking_id_name), updatable;
+                    "name" => format!("{} Membership ID", name), updatable;
                     "symbol" => format!("id{}", symbol), updatable;
-                    "description" => format!("A {} recording your stake in the {}.", staking_id_name, name), updatable;
+                    "description" => format!("A Membership ID recording your stake in the {}.", name), updatable;
+                    "icon_url" => id_icon_url, updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -226,9 +231,10 @@ mod staking {
             )
             .metadata(metadata!(
                 init {
-                    "name" => format!("{} {} Transfer Receipt", name, staking_id_name), updatable;
+                    "name" => format!("{} Membership ID Transfer Receipt", name), updatable;
                     "symbol" => format!("idtrans{}", symbol), updatable;
-                    "description" => format!("A transfer receipt used for {}'s {}.", name, staking_id_name), updatable;
+                    "description" => format!("A transfer receipt used for {}'s Membership ID.", name), updatable;
+                    "icon_url" => transfer_receipt_icon_url.clone(), updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -249,9 +255,10 @@ mod staking {
                 ))
                 .metadata(metadata!(
                     init {
-                        "name" => format!("{} {} Unstake Receipt", name, staking_id_name), updatable;
+                        "name" => format!("{} Membership IDUnstake Receipt", name), updatable;
                         "symbol" => format!("unst{}", symbol), updatable;
-                        "description" => format!("A receipt for removing stake from {}'s {}.", name, staking_id_name), updatable;
+                        "description" => format!("A receipt for removing stake from {} Membership ID.", name), updatable;
+                        "icon_url" => unstake_receipt_icon_url, updatable;
                     }
                 ))
                 .mint_roles(mint_roles!(
@@ -300,6 +307,14 @@ mod staking {
             .instantiate()
             .prepare_to_globalize(OwnerRole::Fixed(rule!(require(controller))))
             .with_address(address_reservation)
+            .metadata(metadata! {
+                init {
+                    "name" => format!("Staking component {}", name), updatable;
+                    "description" => format!("A staking component for {}", name), updatable;
+                    "info_url" => info_url, updatable;
+                    "dapp_definition" => dapp_def_address, updatable;
+                }
+            })
             .globalize();
 
             (component, id_address, pool_token_address)

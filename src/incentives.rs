@@ -167,6 +167,11 @@ mod incentives {
             period_interval: i64,
             name: String,
             symbol: String,
+            dapp_def_address: GlobalAddress,
+            info_url: Url,
+            id_icon_url: Url,
+            transfer_receipt_icon_url: Url,
+            unstake_receipt_icon_url: Url,
         ) -> (Global<Incentives>, ResourceAddress) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(Incentives::blueprint_id());
@@ -176,9 +181,10 @@ mod incentives {
             ))
             .metadata(metadata!(
                 init {
-                    "name" => format!("{} Staking Incentives ID", name), updatable;
+                    "name" => format!("{} Incentives ID", name), updatable;
                     "symbol" => format!("st{}", symbol), updatable;
                     "description" => format!("An ID recording your incentivized stakes in the {} ecosystem.", name), updatable;
+                    "icon_url" => id_icon_url, updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -211,6 +217,7 @@ mod incentives {
                     "name" => format!("{} Stake Transfer Receipt", name), updatable;
                     "symbol" => format!("staketr{}", symbol), updatable;
                     "description" => format!("An stake transfer receipt used in the {} ecosystem.", name), updatable;
+                    "icon_url" => transfer_receipt_icon_url, updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -234,6 +241,7 @@ mod incentives {
                         "name" => format!("{} Unstake Receipt", name), updatable;
                         "symbol" => format!("unstake{}", symbol), updatable;
                         "description" => format!("An unstake receipt used in the {} ecosystem.", name), updatable;
+                        "icon_url" => unstake_receipt_icon_url, updatable;
                     }
                 ))
                 .mint_roles(mint_roles!(
@@ -272,6 +280,14 @@ mod incentives {
             .instantiate()
             .prepare_to_globalize(OwnerRole::Fixed(rule!(require(controller))))
             .with_address(address_reservation)
+            .metadata(metadata! {
+                init {
+                    "name" => format!("{} Incentives", name), updatable;
+                    "description" => format!("Incentives for the {} ecosystem.", name), updatable;
+                    "info_url" => info_url, updatable;
+                    "dapp_definition" => dapp_def_address, updatable;
+                }
+            })
             .globalize();
 
             (component, id_address)

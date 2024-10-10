@@ -160,12 +160,14 @@ mod governance {
             mother_token_address: ResourceAddress,
             mother_pool_token_address: ResourceAddress,
             voting_id_address: ResourceAddress,
+            dapp_def_address: GlobalAddress,
+            info_url: Url,
         ) -> (Global<Governance>, Global<ReentrancyProxy>) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(Governance::blueprint_id());
 
             let reentrancy: Global<ReentrancyProxy> =
-                ReentrancyProxy::new(controller_badge.take(1));
+                ReentrancyProxy::new(controller_badge.take(1), dapp_def_address, info_url.clone());
 
             let controller_badge_address: ResourceAddress = controller_badge.resource_address();
 
@@ -237,6 +239,14 @@ mod governance {
             .instantiate()
             .prepare_to_globalize(OwnerRole::Fixed(rule!(require(controller_badge_address))))
             .with_address(address_reservation)
+            .metadata(metadata! {
+                init {
+                    "name" => format!("{} Governance", protocol_name), updatable;
+                    "description" => format!("Governance for {}", protocol_name), updatable;
+                    "info_url" => info_url, updatable;
+                    "dapp_definition" => dapp_def_address, updatable;
+                }
+            })
             .globalize();
 
             (governance, reentrancy)
