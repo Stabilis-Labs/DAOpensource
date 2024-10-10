@@ -597,6 +597,11 @@ mod staking {
                 id_data.pool_amount_staked > dec!(0),
                 "No stake available to delegate."
             );
+            assert!(
+                id_data.delegating_voting_power_to.is_none(),
+                "You are already delegating."
+            );
+
             if let Some(voting_until) = id_data.voting_until {
                 assert!(
                     Clock::current_time_is_at_or_after(voting_until, TimePrecision::Second),

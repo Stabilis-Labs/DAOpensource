@@ -687,8 +687,10 @@ impl Helper {
             ComponentAddress::try_from(self.governance.0.clone()).unwrap(),
             self.admin_address,
             "set_parameters".to_string(),
-            scrypto_decode(&scrypto_encode(&(dec!(5000), 7i64, dec!(10000), dec!(0.5))).unwrap())
-                .unwrap(),
+            scrypto_decode(
+                &scrypto_encode(&(dec!(5000), 7i64, dec!(10000), dec!(0.5), 7i64)).unwrap(),
+            )
+            .unwrap(),
             false,
             true,
             &mut self.env,
