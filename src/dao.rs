@@ -53,7 +53,6 @@ mod dao {
             create_job => restrict_to: [OWNER];
             employ => restrict_to: [OWNER];
             fire => restrict_to: [OWNER];
-            remove_job => restrict_to: [OWNER];
             airdrop_tokens => restrict_to: [OWNER];
             airdrop_membered_tokens => restrict_to: [OWNER];
             airdrop_staked_tokens => restrict_to: [OWNER];
@@ -933,24 +932,6 @@ mod dao {
 
             job.employee = None;
             employee_jobs.retain(|&x| x != job_id);
-        }
-
-        /// Remove a job
-        ///
-        /// # Input
-        /// - `job_id`: Job to remove
-        ///
-        /// # Output
-        /// - None
-        ///
-        /// # Logic
-        /// - Get the job from the jobs KVS
-        /// - Check if job has an employee, if so, panic.
-        /// - Remove the job from the jobs KVS
-        pub fn remove_job(&mut self, job_id: u64) {
-            let job = self.jobs.get(&job_id).expect("Job does not exist");
-            assert!(job.employee.is_none(), "Job is taken, can't remove it");
-            self.jobs.remove(&job_id);
         }
 
         /// Post an announcement to the DAO

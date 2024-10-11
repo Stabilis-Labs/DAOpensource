@@ -411,10 +411,6 @@ fn test_job_lifetime() -> Result<(), RuntimeError> {
     assert_eq!(amount_9, dec!(286000));
     helper.assert_bucket_eq(&salary, helper.ilis_address, dec!(14000))?;
 
-    // Attempt to remove a job that still has an employee (should fail)
-    let job_removal_error = helper.remove_job(1);
-    assert!(job_removal_error.is_err());
-
     Ok(())
 }
 

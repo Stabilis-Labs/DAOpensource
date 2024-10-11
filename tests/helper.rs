@@ -306,12 +306,6 @@ impl Helper {
         Ok(())
     }
 
-    pub fn remove_job(&mut self, job_id: u64) -> Result<(), RuntimeError> {
-        self.dao.remove_job(job_id, &mut self.env)?;
-
-        Ok(())
-    }
-
     pub fn post_announcement(&mut self, announcement: String) -> Result<(), RuntimeError> {
         self.dao
             .post_announcement(announcement, None, &mut self.env)?;
