@@ -539,7 +539,7 @@ mod governance {
             );
 
             if proposal.status == ProposalStatus::VetoMode
-                && Clock::current_time_is_at_or_after(
+                && Clock::current_time_is_strictly_after(
                     proposal.deadline.add_days(-1).unwrap(),
                     TimePrecision::Second,
                 )
@@ -550,7 +550,7 @@ mod governance {
                 );
             }
 
-            if Clock::current_time_is_at_or_after(
+            if Clock::current_time_is_strictly_after(
                 proposal.deadline.add_days(-1).unwrap(),
                 TimePrecision::Second,
             ) && proposal.has_failed_in_last_day.is_none()
