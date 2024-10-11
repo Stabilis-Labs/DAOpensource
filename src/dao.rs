@@ -247,6 +247,7 @@ mod dao {
                 true,
                 dapp_def_address,
                 info_url.clone(),
+                controller_badge_address,
             );
 
             let (staking, voting_id_address, pool_token_address): (
@@ -534,8 +535,8 @@ mod dao {
             vote_duration: i64,
         ) {
             assert!(
-                claimants.len() < 21,
-                "Too many accounts to airdrop to! Try at most 20."
+                claimants.len() < 10,
+                "Too many accounts to airdrop to! Try at most 10."
             );
             let mut to_airdrop_nfts: Option<Bucket> = None;
             let mut airdrop_map: IndexMap<Global<Account>, ResourceSpecifier> = IndexMap::new();
@@ -614,8 +615,8 @@ mod dao {
             vote_duration: i64,
         ) {
             assert!(
-                claimants.len() < 21,
-                "Too many accounts to airdrop to! Try at most 20."
+                claimants.len() < 10,
+                "Too many accounts to airdrop to! Try at most 10."
             );
             let mut to_airdrop_nfts: Option<Bucket> = None;
             let mut airdrop_map: IndexMap<Global<Account>, ResourceSpecifier> = IndexMap::new();
@@ -697,8 +698,8 @@ mod dao {
             address: ResourceAddress,
         ) {
             assert!(
-                claimants.len() < 31,
-                "Too many accounts to airdrop to! Try at most 30."
+                claimants.len() < 15,
+                "Too many accounts to airdrop to! Try at most 15."
             );
             let mut to_airdrop_tokens: Option<Bucket> = None;
 

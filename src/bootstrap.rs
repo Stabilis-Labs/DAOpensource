@@ -18,7 +18,7 @@ mod bootstrap {
             swap => PUBLIC;
             finish_bootstrap => PUBLIC;
             send_raised_liquidity => restrict_to: [OWNER];
-            start_bootstrap => restrict_to: [OWNER];
+            start_bootstrap => PUBLIC;
             reclaim_initial => PUBLIC;
         }
     }
@@ -28,7 +28,7 @@ mod bootstrap {
         //"package_sim1pkgxxxxxxxxxpackgexxxxxxxxx000726633226xxxxxxxxxlk8hc9",
         //"package_rdx1p5l6dp3slnh9ycd7gk700czwlck9tujn0zpdnd0efw09n2zdnn0lzx",
         BasicPool {
-            fn instantiate_with_liquidity(a_bucket: Bucket, b_bucket: Bucket, input_fee_rate: Decimal, dapp_definition: ComponentAddress) -> (Global<BasicPool>, Bucket);
+            fn instantiate_with_liquidity(a_bucket: Bucket, b_bucket: Bucket, input_fee_rate: Decimal, dapp_definition: ComponentAddress) -> (Global<BasicPool>, Bucket, ScryptoValue);
         }
 
         // mainnet oci dapp definition: account_rdx12x2ecj3kp4mhq9u34xrdh7njzyz0ewcz4szv0jw5jksxxssnjh7z6z
@@ -123,6 +123,7 @@ mod bootstrap {
             refund_initial: bool,
             dapp_def_address: GlobalAddress,
             info_url: Url,
+            dao_admin_badge: ResourceAddress,
         ) -> (Global<LinearBootstrapPool>, Option<Bucket>, Bucket) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(LinearBootstrapPool::blueprint_id());
@@ -206,9 +207,7 @@ mod bootstrap {
                 mother_refund_vault: Vault::new(initial_big_address),
             }
             .instantiate()
-            .prepare_to_globalize(OwnerRole::Fixed(rule!(require(
-                bootstrap_badge.resource_address()
-            ))))
+            .prepare_to_globalize(OwnerRole::Fixed(rule!(require(dao_admin_badge))))
             .with_address(address_reservation)
             .metadata(metadata! {
                 init {
@@ -405,7 +404,7 @@ mod bootstrap {
                 mother_refund = Some(self.mother_refund_vault.take_all());
             }
             if to_dex {
-                let (_component, oci_lp_tokens) =
+                let (_component, oci_lp_tokens, _moronic_oci_value_like_really_wtf_is_this) =
                     Blueprint::<BasicPool>::instantiate_with_liquidity(
                         self.resource1_vault.take_all(),
                         self.resource2_vault.take_all(),
