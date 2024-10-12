@@ -60,7 +60,7 @@ pub struct IncentivesId {
 pub struct Lock {
     pub payment: Decimal,
     pub max_duration: i64,
-    pub unlock_multiplier: Decimal,
+    pub unlock_payment: Decimal,
 }
 
 /// Resource structure, holding information about a staked token within a staking ID.
@@ -793,9 +793,9 @@ mod incentives {
                 .clone();
 
             let amount_staked = resource.amount_staked;
-            let necessary_payment = stakable.lock.unlock_multiplier
-                * ((stakable.lock.payment.checked_powi(days_to_unlock).unwrap() * amount_staked)
-                    - amount_staked);
+            let necessary_payment =
+                (stakable.lock.unlock_payment.checked_powi(days_to_unlock).unwrap() * amount_staked)
+                    - amount_staked;
             assert!(
                 payment.amount() >= necessary_payment,
                 "Payment is not enough to unlock the tokens."
@@ -869,12 +869,12 @@ mod incentives {
             reward_amount: Decimal,
             payment: Decimal,
             max_duration: i64,
-            unlock_multiplier: Decimal,
+            unlock_payment: Decimal,
         ) {
             let lock: Lock = Lock {
                 payment,
                 max_duration,
-                unlock_multiplier,
+                unlock_payment,
             };
 
             self.stakes.insert(
@@ -897,12 +897,12 @@ mod incentives {
             reward_amount: Decimal,
             payment: Decimal,
             max_duration: i64,
-            unlock_multiplier: Decimal,
+            unlock_payment: Decimal,
         ) {
             let lock: Lock = Lock {
                 payment,
                 max_duration,
-                unlock_multiplier,
+                unlock_payment,
             };
 
             self.stakes.get_mut(&address).unwrap().reward_amount = reward_amount;

@@ -9,7 +9,7 @@ fn test_incentives_stake_without_and_with_id() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens without an ID
@@ -58,7 +58,7 @@ fn test_incentives_stake_and_unstake_with_id() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -119,7 +119,7 @@ fn test_incentives_unstake_before_time() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -144,7 +144,7 @@ fn test_transfer_incentives_stake() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -191,7 +191,7 @@ fn test_incentives_staking_rewards() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -270,7 +270,7 @@ fn test_incentives_locking() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -323,7 +323,7 @@ fn test_incentives_lock_too_long() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -346,7 +346,7 @@ fn test_incentives_lock_and_unstake() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -376,7 +376,7 @@ fn test_lock_and_unstake_too_early_incentives() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens
@@ -404,7 +404,7 @@ fn test_lock_and_unlock_too_far_incentives() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens and prepare 1000 tokens for payment
@@ -433,7 +433,7 @@ fn test_incentives_unlock_too_early() -> Result<(), RuntimeError> {
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens and prepare 1000 tokens for payment
@@ -470,7 +470,7 @@ fn test_incentives_unlock_to_unstake_partial_pay_off() -> Result<(), RuntimeErro
     helper.env.disable_auth_module();
 
     // Add a stakable resource with specific parameters
-    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(2))?;
+    let _ = helper.add_stakable(helper.ilis_address, dec!(10000), dec!(1.001), 365, dec!(1.002))?;
     helper.env.enable_auth_module();
 
     // Stake 10000 tokens and prepare 1000 tokens for payment

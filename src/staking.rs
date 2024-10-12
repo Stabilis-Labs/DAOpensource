@@ -71,7 +71,7 @@ pub struct Id {
 pub struct Lock {
     pub payment: Decimal,
     pub max_duration: i64,
-    pub unlock_multiplier: Decimal,
+    pub unlock_payment: Decimal,
 }
 
 /// Stakable unit structure, used by the component to data about a stakable token.
@@ -278,7 +278,7 @@ mod staking {
             let mother_lock: Lock = Lock {
                 payment: dec!("1.001"),
                 max_duration: 365i64,
-                unlock_multiplier: dec!(2),
+                unlock_payment: dec!("1.002"),
             };
 
             let stakable_unit = StakableUnit {
@@ -782,10 +782,9 @@ mod staking {
             let mut id_data: Id = self.id_manager.get_non_fungible_data(&id);
 
             let real_amount_staked = self.get_real_amount(id_data.pool_amount_staked);
-            let necessary_payment = stakable.lock.unlock_multiplier
-                * ((stakable.lock.payment.checked_powi(days_to_unlock).unwrap()
+            let necessary_payment = (stakable.lock.unlock_payment.checked_powi(days_to_unlock).unwrap()
                     * real_amount_staked)
-                    - real_amount_staked);
+                    - real_amount_staked;
             assert!(
                 payment.amount() >= necessary_payment,
                 "Payment is not enough to unlock the tokens."
@@ -847,12 +846,12 @@ mod staking {
             reward_amount: Decimal,
             payment: Decimal,
             max_duration: i64,
-            unlock_multiplier: Decimal,
+            unlock_payment: Decimal,
         ) {
             let lock: Lock = Lock {
                 payment,
                 max_duration,
-                unlock_multiplier,
+                unlock_payment,
             };
 
             self.stakable_unit.reward_amount = reward_amount;
