@@ -28,7 +28,7 @@ mod bootstrap {
         //"package_sim1pkgxxxxxxxxxpackgexxxxxxxxx000726633226xxxxxxxxxlk8hc9",
         //"package_rdx1p5l6dp3slnh9ycd7gk700czwlck9tujn0zpdnd0efw09n2zdnn0lzx",
         BasicPool {
-            fn instantiate_with_liquidity(a_bucket: Bucket, b_bucket: Bucket, input_fee_rate: Decimal, dapp_definition: ComponentAddress) -> (Global<BasicPool>, Bucket, ScryptoValue);
+            fn instantiate_with_liquidity(a_bucket: Bucket, b_bucket: Bucket, input_fee_rate: Decimal, dapp_definition: ComponentAddress) -> (Global<BasicPool>, Bucket, Option<Bucket>);
         }
 
         // mainnet oci dapp definition: account_rdx12x2ecj3kp4mhq9u34xrdh7njzyz0ewcz4szv0jw5jksxxssnjh7z6z
@@ -393,18 +393,20 @@ mod bootstrap {
             Option<Bucket>,
             Option<Bucket>,
             Option<Bucket>,
+            Option<Bucket>,
         ) {
             assert!(self.end.is_some(), "Bootstrap not finished yet.");
             let mut mother_refund: Option<Bucket> = None;
             let mut resource1: Option<Bucket> = None;
             let mut resource2: Option<Bucket> = None;
             let mut lp_tokens: Option<Bucket> = None;
+            let mut non_bucket: Option<Bucket> = None;
 
             if self.mother_refund_vault.amount() > dec!(0) {
                 mother_refund = Some(self.mother_refund_vault.take_all());
             }
             if to_dex {
-                let (_component, oci_lp_tokens, _moronic_oci_value_like_really_wtf_is_this) =
+                let (_component, oci_lp_tokens, optional_bucket) =
                     Blueprint::<BasicPool>::instantiate_with_liquidity(
                         self.resource1_vault.take_all(),
                         self.resource2_vault.take_all(),
@@ -412,12 +414,13 @@ mod bootstrap {
                         self.oci_dapp_definition,
                     );
                 lp_tokens = Some(oci_lp_tokens);
+                non_bucket = optional_bucket;
             } else {
                 resource1 = Some(self.resource1_vault.take_all());
                 resource2 = Some(self.resource2_vault.take_all());
             }
 
-            (lp_tokens, mother_refund, resource1, resource2)
+            (lp_tokens, mother_refund, resource1, resource2, non_bucket)
         }
 
         /// Starts the bootstrap.

@@ -378,7 +378,8 @@ mod dao {
 
         /// Finishes the bootstrap and stores the resulting tokens in the appropriate vaults
         pub fn use_raised_liquidity(&mut self) {
-            let (lp_tokens, mother_tokens, resource1, resource2): (
+            let (lp_tokens, mother_tokens, resource1, resource2, non_bucket): (
+                Option<Bucket>,
                 Option<Bucket>,
                 Option<Bucket>,
                 Option<Bucket>,
@@ -403,6 +404,9 @@ mod dao {
             }
             if resource2.is_some() {
                 self.put_tokens(resource2.unwrap());
+            }
+            if non_bucket.is_some() {
+                self.put_tokens(non_bucket.unwrap());
             }
         }
 
