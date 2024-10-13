@@ -404,7 +404,7 @@ mod incentives {
                 resource.amount_staked -= amount;
             }
 
-            self.stakes.get_mut(&address).unwrap().amount_staked -= resource.amount_staked;
+            self.stakes.get_mut(&address).unwrap().amount_staked -= unstake_amount;
 
             resource_map.insert(address, resource);
 
