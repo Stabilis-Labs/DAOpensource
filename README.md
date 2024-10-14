@@ -67,3 +67,8 @@ graph TD
 ```
 
 Once the DAO is deployed, it can be set up to govern any component. This connection allows the DAO to govern the STAB module through authorized method calls. For this to work, deposit the admin badge(s) of the to be governed component(s) into the Governance Component's Vault.
+
+## Disclaimer
+
+This package is made for research purposes only. In production use of this package is discouraged. Stabilis Labs is not responsible for or affiliated with any deployments of this package.
+
