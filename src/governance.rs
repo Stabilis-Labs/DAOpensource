@@ -207,7 +207,7 @@ mod governance {
 
             let parameters = GovernanceParameters {
                 fee: dec!(10000),
-                proposal_duration: 7,
+                proposal_duration: 3,
                 quorum: dec!(10000),
                 approval_threshold: dec!("0.5"),
                 maximum_proposal_submit_delay: 7,
