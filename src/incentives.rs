@@ -61,6 +61,7 @@ pub struct Lock {
     pub payment: Decimal,
     pub max_duration: i64,
     pub unlock_payment: Decimal,
+    pub reward_coefficient: Decimal,
 }
 
 /// Resource structure, holding information about a staked token within a staking ID.
@@ -600,13 +601,13 @@ mod incentives {
                     lock_reward_bucket = Some(
                         self.reward_vault
                             .take(
-                                (stakable
+                                stakable.lock.reward_coefficient * ((stakable
                                     .lock
                                     .payment
                                     .checked_powi(whole_days_to_unlock)
                                     .unwrap()
                                     * stake_amount)
-                                    - stake_amount,
+                                    - stake_amount),
                             )
                             .into(),
                     );
@@ -750,8 +751,8 @@ mod incentives {
                 .update_non_fungible_data(&id, "resources", resource_map);
 
             self.reward_vault.take(
-                (stakable.lock.payment.checked_powi(days_to_lock).unwrap() * amount_staked)
-                    - amount_staked,
+                stakable.lock.reward_coefficient * ((stakable.lock.payment.checked_powi(days_to_lock).unwrap() * amount_staked)
+                    - amount_staked),
             )
         }
 
@@ -794,8 +795,8 @@ mod incentives {
 
             let amount_staked = resource.amount_staked;
             let necessary_payment =
-                (stakable.lock.unlock_payment.checked_powi(days_to_unlock).unwrap() * amount_staked)
-                    - amount_staked;
+                stakable.lock.reward_coefficient * ((stakable.lock.unlock_payment.checked_powi(days_to_unlock).unwrap() * amount_staked)
+                    - amount_staked);
             assert!(
                 payment.amount() >= necessary_payment,
                 "Payment is not enough to unlock the tokens."
@@ -870,11 +871,13 @@ mod incentives {
             payment: Decimal,
             max_duration: i64,
             unlock_payment: Decimal,
+            reward_coefficient: Decimal,
         ) {
             let lock: Lock = Lock {
                 payment,
                 max_duration,
                 unlock_payment,
+                reward_coefficient,
             };
 
             self.stakes.insert(
@@ -898,11 +901,13 @@ mod incentives {
             payment: Decimal,
             max_duration: i64,
             unlock_payment: Decimal,
+            reward_coefficient: Decimal,
         ) {
             let lock: Lock = Lock {
                 payment,
                 max_duration,
                 unlock_payment,
+                reward_coefficient,
             };
 
             self.stakes.get_mut(&address).unwrap().reward_amount = reward_amount;

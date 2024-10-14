@@ -519,6 +519,7 @@ impl Helper {
             payment,
             max_duration,
             unlock_multiplier,
+            dec!(1),
             &mut self.env,
         )?;
 
