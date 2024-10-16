@@ -24,9 +24,9 @@ mod bootstrap {
     }
 
     extern_blueprint! {
-        //"package_tdx_2_1phmkv5tql452y7eev899qngwesfzjn2zdjdd2efh50e73rtq93ne0q",
+        "package_tdx_2_1phmkv5tql452y7eev899qngwesfzjn2zdjdd2efh50e73rtq93ne0q",
         //"package_sim1pkgxxxxxxxxxpackgexxxxxxxxx000726633226xxxxxxxxxlk8hc9",
-        "package_rdx1p5l6dp3slnh9ycd7gk700czwlck9tujn0zpdnd0efw09n2zdnn0lzx",
+        //"package_rdx1p5l6dp3slnh9ycd7gk700czwlck9tujn0zpdnd0efw09n2zdnn0lzx",
         BasicPool {
             fn instantiate_with_liquidity(a_bucket: Bucket, b_bucket: Bucket, input_fee_rate: Decimal, dapp_definition: ComponentAddress) -> (Global<BasicPool>, Bucket, Option<Bucket>);
         }
@@ -489,7 +489,7 @@ mod bootstrap {
             let elapsed_time = Clock::current_time_rounded_to_seconds().seconds_since_unix_epoch
                 - start.seconds_since_unix_epoch;
             let time_to_elapse = start
-                .add_days(self.duration)
+                .add_minutes(self.duration)
                 .unwrap()
                 .seconds_since_unix_epoch
                 - start.seconds_since_unix_epoch;

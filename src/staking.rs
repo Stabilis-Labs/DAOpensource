@@ -441,7 +441,7 @@ mod staking {
                 let unstake_receipt = UnstakeReceipt {
                     amount: unstake_amount,
                     redemption_time: Clock::current_time_rounded_to_seconds()
-                        .add_days(self.stakable_unit.unstake_delay)
+                        .add_minutes(self.stakable_unit.unstake_delay)
                         .unwrap(),
                 };
                 self.unstake_receipt_counter += 1;
@@ -709,7 +709,7 @@ mod staking {
             let new_lock: Instant;
             let stakable = &self.stakable_unit;
             let max_lock: Instant = Clock::current_time_rounded_to_seconds()
-                .add_days(stakable.lock.max_duration)
+                .add_minutes(stakable.lock.max_duration)
                 .unwrap();
 
             if let Some(locked_until) = id_data.locked_until {
@@ -717,15 +717,15 @@ mod staking {
                     Clock::current_time_rounded_to_seconds(),
                     TimeComparisonOperator::Gt,
                 ) {
-                    new_lock = locked_until.add_days(days_to_lock).unwrap();
+                    new_lock = locked_until.add_minutes(days_to_lock).unwrap();
                 } else {
                     new_lock = Clock::current_time_rounded_to_seconds()
-                        .add_days(days_to_lock)
+                        .add_minutes(days_to_lock)
                         .unwrap();
                 }
             } else {
                 new_lock = Clock::current_time_rounded_to_seconds()
-                    .add_days(days_to_lock)
+                    .add_minutes(days_to_lock)
                     .unwrap();
             }
 
@@ -794,11 +794,11 @@ mod staking {
 
             let new_lock: Instant;
             let min_lock: Instant = Clock::current_time_rounded_to_seconds()
-                .add_days(-1)
+                .add_minutes(-1)
                 .unwrap();
 
             if let Some(locked_until) = id_data.locked_until {
-                new_lock = locked_until.add_days(-days_to_unlock).unwrap();
+                new_lock = locked_until.add_minutes(-days_to_unlock).unwrap();
             } else {
                 panic!("Tokens not locked.");
             }

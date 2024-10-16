@@ -263,7 +263,7 @@ mod incentives {
 
             let component = Self {
                 next_period: Clock::current_time_rounded_to_seconds()
-                    .add_days(period_interval)
+                    .add_minutes(period_interval)
                     .unwrap(),
                 period_interval,
                 current_period: 0,
@@ -335,7 +335,7 @@ mod incentives {
                 self.current_period += 1;
                 self.next_period = self
                     .next_period
-                    .add_days((1 + extra_periods) * self.period_interval)
+                    .add_minutes((1 + extra_periods) * self.period_interval)
                     .unwrap();
             }
         }
@@ -427,7 +427,7 @@ mod incentives {
                     address,
                     amount: unstake_amount,
                     redemption_time: Clock::current_time_rounded_to_seconds()
-                        .add_days(self.unstake_delay)
+                        .add_minutes(self.unstake_delay)
                         .unwrap(),
                 };
                 self.unstake_receipt_counter += 1;
@@ -719,7 +719,7 @@ mod incentives {
             let amount_staked = resource.amount_staked;
             let new_lock: Instant;
             let max_lock: Instant = Clock::current_time_rounded_to_seconds()
-                .add_days(stakable.lock.max_duration)
+                .add_minutes(stakable.lock.max_duration)
                 .unwrap();
 
             if let Some(locked_until) = resource.locked_until {
@@ -727,15 +727,15 @@ mod incentives {
                     Clock::current_time_rounded_to_seconds(),
                     TimeComparisonOperator::Gt,
                 ) {
-                    new_lock = locked_until.add_days(days_to_lock).unwrap();
+                    new_lock = locked_until.add_minutes(days_to_lock).unwrap();
                 } else {
                     new_lock = Clock::current_time_rounded_to_seconds()
-                        .add_days(days_to_lock)
+                        .add_minutes(days_to_lock)
                         .unwrap();
                 }
             } else {
                 new_lock = Clock::current_time_rounded_to_seconds()
-                    .add_days(days_to_lock)
+                    .add_minutes(days_to_lock)
                     .unwrap();
             }
 
@@ -806,11 +806,11 @@ mod incentives {
 
             let new_lock: Instant;
             let min_lock: Instant = Clock::current_time_rounded_to_seconds()
-                .add_days(-1)
+                .add_minutes(-1)
                 .unwrap();
 
             if let Some(locked_until) = resource.locked_until {
-                new_lock = locked_until.add_days(-days_to_unlock).unwrap();
+                new_lock = locked_until.add_minutes(-days_to_unlock).unwrap();
             } else {
                 panic!("Tokens not locked.");
             }

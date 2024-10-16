@@ -572,7 +572,7 @@ mod dao {
                         .authorize_with_amount(dec!(1), || {
                             self.staking.vote(
                                 Clock::current_time_rounded_to_seconds()
-                                    .add_days(vote_duration)
+                                    .add_minutes(vote_duration)
                                     .unwrap(),
                                 staking_id_id.clone(),
                             )
@@ -660,7 +660,7 @@ mod dao {
                             self.incentives.vote(
                                 address,
                                 Clock::current_time_rounded_to_seconds()
-                                    .add_days(vote_duration)
+                                    .add_minutes(vote_duration)
                                     .unwrap(),
                                 staking_id_id.clone(),
                             )
@@ -883,7 +883,7 @@ mod dao {
 
                     job.last_payment = job
                         .last_payment
-                        .add_days(whole_periods_worked * job.duration)
+                        .add_minutes(whole_periods_worked * job.duration)
                         .unwrap();
 
                     if !job.recurring {

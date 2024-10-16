@@ -360,7 +360,7 @@ mod governance {
                 votes_against: dec!(0),
                 votes: KeyValueStore::new(),
                 deadline: Clock::current_time_rounded_to_seconds()
-                    .add_minutes(self.parameters.maximum_proposal_submit_delay * 24 * 60)
+                    .add_minutes(self.parameters.maximum_proposal_submit_delay)
                     .unwrap(),
                 next_index: 0,
                 has_failed_in_last_day: None,
@@ -490,7 +490,7 @@ mod governance {
 
                 proposal.status = ProposalStatus::Ongoing;
                 proposal.deadline = Clock::current_time_rounded_to_seconds()
-                    .add_minutes(self.parameters.proposal_duration * 24 * 60)
+                    .add_minutes(self.parameters.proposal_duration)
                     .unwrap();
 
                 self.proposal_receipt_manager.update_non_fungible_data(
@@ -540,7 +540,7 @@ mod governance {
 
             if proposal.status == ProposalStatus::VetoMode
                 && Clock::current_time_is_at_or_after(
-                    proposal.deadline.add_days(-1).unwrap(),
+                    proposal.deadline.add_minutes(-1).unwrap(),
                     TimePrecision::Second,
                 )
             {
@@ -551,7 +551,7 @@ mod governance {
             }
 
             if Clock::current_time_is_at_or_after(
-                proposal.deadline.add_days(-1).unwrap(),
+                proposal.deadline.add_minutes(-1).unwrap(),
                 TimePrecision::Second,
             ) && proposal.has_failed_in_last_day.is_none()
                 && proposal.status == ProposalStatus::Ongoing
@@ -564,7 +564,7 @@ mod governance {
                 } else {
                     proposal.has_failed_in_last_day = Some(true);
                     proposal.status = ProposalStatus::VetoMode;
-                    proposal.deadline = proposal.deadline.add_days(1).unwrap();
+                    proposal.deadline = proposal.deadline.add_minutes(1).unwrap();
                 }
             }
 
@@ -592,7 +592,7 @@ mod governance {
                 .as_fungible()
                 .authorize_with_amount(dec!("0.75"), || {
                     self.staking
-                        .vote(proposal.deadline.add_days(1).unwrap(), id.clone())
+                        .vote(proposal.deadline.add_minutes(1).unwrap(), id.clone())
                 });
 
             if for_against {
@@ -612,7 +612,7 @@ mod governance {
                 && proposal_failing
             {
                 proposal.has_failed_in_last_day = Some(true);
-                proposal.deadline = proposal.deadline.add_days(1).unwrap();
+                proposal.deadline = proposal.deadline.add_minutes(1).unwrap();
                 proposal.status = ProposalStatus::VetoMode;
             }
         }
@@ -837,7 +837,7 @@ mod governance {
 
         pub fn hurry_proposal(&mut self, proposal_id: u64, new_duration: i64) {
             let new_deadline = Clock::current_time_rounded_to_seconds()
-                .add_minutes(new_duration * 24 * 60)
+                .add_minutes(new_duration)
                 .unwrap();
             let mut proposal = self.proposals.get_mut(&proposal_id).unwrap();
             assert!(
